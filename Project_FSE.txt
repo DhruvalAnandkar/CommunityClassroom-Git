@@ -1,0 +1,92 @@
+% Define the maze (1 represents walls, 0 represents open space)
+maze = [
+    1 1 1 1 1 1 1;
+    1 0 0 0 0 0 1;
+    1 0 1 1 1 0 1;
+    1 0 1 0 0 0 1;
+    1 0 0 0 1 0 1;
+    1 1 1 1 1 1 1;
+];
+
+% Define robot's initial position and orientation
+robotPosition = [2, 2]; % Start at position (2, 2) in the maze
+orientation = 'up'; % Initial orientation
+
+% Define movement commands
+moveForward = @(pos, orient) moveRobot(pos, orient, 1);
+turnRight = @(orient) changeOrientation(orient, 'right');
+turnLeft = @(orient) changeOrientation(orient, 'left');
+turnAround = @(orient) changeOrientation(orient, 'around');
+
+% Function to move the robot
+function newPosition = moveRobot(currentPosition, currentOrientation, distance)
+    switch currentOrientation
+        case 'up'
+            newPosition = currentPosition - [distance, 0];
+        case 'down'
+            newPosition = currentPosition + [distance, 0];
+        case 'left'
+            newPosition = currentPosition - [0, distance];
+        case 'right'
+            newPosition = currentPosition + [0, distance];
+    end
+end
+
+% Function to change robot's orientation
+function newOrientation = changeOrientation(currentOrientation, direction)
+    orientations = {'up', 'right', 'down', 'left'};
+    currentIdx = find(strcmp(orientations, currentOrientation));
+    switch direction
+        case 'right'
+            newIdx = mod(currentIdx, 4) + 1;
+        case 'left'
+            newIdx = mod(currentIdx + 1, 4) + 1;
+        case 'around'
+            newIdx = mod(currentIdx + 2, 4) + 1;
+    end
+    newOrientation = orientations{newIdx};
+end
+
+% Movement algorithm to navigate the maze
+while ~atDestination(robotPosition)
+    if frontClear(robotPosition, orientation, maze)
+        robotPosition = moveForward(robotPosition, orientation);
+    elseif rightClear(robotPosition, orientation, maze)
+        orientation = turnRight(orientation);
+    elseif leftClear(robotPosition, orientation, maze)
+        orientation = turnLeft(orientation);
+    else
+        orientation = turnAround(orientation);
+    end
+end
+
+% Function to check if the robot is at the destination
+function isDestination = atDestination(position)
+    isDestination = (position == [5, 5]); % Assuming the destination is at (5, 5)
+end
+
+% Functions to check if there are obstacles in front, right, or left of the robot
+function clear = frontClear(position, orientation, maze)
+    clear = checkDirection(position, orientation, maze, 'front');
+end
+
+function clear = rightClear(position, orientation, maze)
+    clear = checkDirection(position, orientation, maze, 'right');
+end
+
+function clear = leftClear(position, orientation, maze)
+    clear = checkDirection(position, orientation, maze, 'left');
+end
+
+% Function to check if the given direction is clear
+function clear = checkDirection(position, orientation, maze, direction)
+    switch direction
+        case 'front'
+            nextPosition = moveRobot(position, orientation, 1);
+        case 'right'
+            nextPosition = moveRobot(position, turnRight(orientation), 1);
+        case 'left'
+            nextPosition = moveRobot(position, turnLeft(orientation), 1);
+    end
+    clear = maze(nextPosition(1), nextPosition(2)) == 0; % Assuming 0 represents open space
+end
