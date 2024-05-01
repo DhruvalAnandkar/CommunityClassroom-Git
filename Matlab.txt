@@ -1,0 +1,35 @@
+% Define the maze (1 represents walls, 0 represents open space)
+maze = [
+    1 1 1 1 1 1 1;
+    1 0 0 0 0 0 1;
+    1 0 1 1 1 0 1;
+    1 0 1 0 0 0 1;
+    1 0 0 0 1 0 1;
+    1 1 1 1 1 1 1;
+];
+
+% Define robot's initial position and orientation
+robotPosition = [2, 2]; % Start at position (2, 2) in the maze
+orientation = 'up'; % Initial orientation
+
+% Movement algorithm to navigate the maze
+while ~isequal(robotPosition, [5, 5]) % Assuming the destination is at (5, 5)
+    % Check if there's an open space in front
+    if maze(robotPosition(1) - 1, robotPosition(2)) == 0 && ~strcmp(orientation, 'down')
+        robotPosition(1) = robotPosition(1) - 1; % Move up
+        orientation = 'up';
+    elseif maze(robotPosition(1) + 1, robotPosition(2)) == 0 && ~strcmp(orientation, 'up')
+        robotPosition(1) = robotPosition(1) + 1; % Move down
+        orientation = 'down';
+    elseif maze(robotPosition(1), robotPosition(2) - 1) == 0 && ~strcmp(orientation, 'right')
+        robotPosition(2) = robotPosition(2) - 1; % Move left
+        orientation = 'left';
+    elseif maze(robotPosition(1), robotPosition(2) + 1) == 0 && ~strcmp(orientation, 'left')
+        robotPosition(2) = robotPosition(2) + 1; % Move right
+        orientation = 'right';
+    else
+        error('Stuck in a dead end!');
+    end
+end
+
+disp('Robot reached the destination!');
